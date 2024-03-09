@@ -93,15 +93,14 @@ def create_spot(park_id):
     name = body.get("name")
     longtitute = body.get("longtitute")
     latitude = body.get("latitude")
-    points = body.get("points")
+    suggester_id = body.get("suggester_id")
     if name is None or longtitute is None or latitude is None:
         return failure_response("Name, longtitute, and latitude are required!")
     spot = Spot(name=name, longtitute=longtitute,
-                latitude=latitude, park_id=park_id, points=points)
+                latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     db.session.add(spot)
     db.session.commit()
     return success_response(spot.serialize(), 201)
-
 
 @app.route("/api/park/<int:park_id>/spot/")
 def get_all_spots_by_park_id(park_id):

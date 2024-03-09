@@ -116,7 +116,7 @@ class Spot(db.Model):
     actions = db.relationship("Action", cascade="delete")
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     suggester_id = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=False)
+        db.Integer, db.ForeignKey("user.id"), default=0)
     images_id = db.relationship("Image", cascade="delete")
 
     def __init__(self, **kwargs):
@@ -208,6 +208,7 @@ class Action_category(db.Model):
     __tablename__ = "category"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
+    point = db.Column(db.Integer, nullable=False)
     actions = db.relationship(
         "Action", secondary=assoc_actions_categories, back_populates="categories")
 
