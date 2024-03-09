@@ -1,9 +1,10 @@
 import json
 import os
 from datetime import datetime
+import base64
 
-from db import db, Park, Spot, Action, Shopping_item, User
-from flask import Flask, request, send_file
+from db import db, Park, Spot, Action, Shopping_item, User, Image
+from flask import Flask, request, send_file, jsonify
 from hashlib import pbkdf2_hmac
 from dotenv import load_dotenv
 
@@ -46,6 +47,8 @@ def front_page():
 
 
 #### ROUTES ####
+
+# --------- Park Routes ------------
 @app.route("/api/park/", methods=["POST"])
 def create_park():
     body = json.loads(request.data)
@@ -58,11 +61,117 @@ def create_park():
     return success_response(park.serialize(), 201)
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+@app.route("/api/park/")
+def get_all_parks():
+    parks = [park.serialize() for park in Park.query.all()]
+    return success_response({"parks": parks})
 
 
-#--------- Users Routes ------------
+@app.route("/api/park/<int:park_id>/")
+def get_park_by_id(park_id):
+    park = Park.query.filter_by(id=park_id).first()
+    if park is None:
+        return failure_response("Park not found!")
+    return success_response(park.serialize())
+
+
+@app.route("/api/park/<int:park_id>/", methods=["DELETE"])
+def delete_park_by_id(park_id):
+    park = Park.query.filter_by(id=park_id).first()
+    if park is None:
+        return failure_response("Park not found!")
+    db.session.delete(park)
+    db.session.commit()
+    return success_response({})
+
+# --------- Spot Routes ------------
+
+
+@app.route("/api/park/<int:park_id>/spot/", methods=["POST"])
+def create_spot(park_id):
+    body = json.loads(request.data)
+    name = body.get("name")
+    longtitute = body.get("longtitute")
+    latitude = body.get("latitude")
+    points = body.get("points")
+    if name is None or longtitute is None or latitude is None:
+        return failure_response("Name, longtitute, and latitude are required!")
+    spot = Spot(name=name, longtitute=longtitute,
+                latitude=latitude, park_id=park_id, points=points)
+    db.session.add(spot)
+    db.session.commit()
+    return success_response(spot.serialize(), 201)
+
+
+@app.route("/api/park/<int:park_id>/spot/")
+def get_all_spots_by_park_id(park_id):
+    spots = [spot.serialize()
+             for spot in Spot.query.filter_by(park_id=park_id).all()]
+    return success_response({"spots": spots})
+
+
+@app.route("/api/spot/<int:spot_id>/")
+def get_spot_by_id(spot_id):
+    spot = Spot.query.filter_by(id=spot_id).first()
+    if spot is None:
+        return failure_response("Spot not found!")
+    return success_response(spot.serialize())
+
+
+@app.route("/api/spot/<int:spot_id>/", methods=["DELETE"])
+def delete_spot_by_id(spot_id):
+    spot = Spot.query.filter_by(id=spot_id).first()
+    if spot is None:
+        return failure_response("Spot not found!")
+    db.session.delete(spot)
+    db.session.commit()
+    return success_response({})
+
+
+@app.route("/api/spot/<int:spot_id>/image/", methods=["POST"])
+def upload_spot_image(spot_id):
+    image = request.files["image"]
+    if image.filename == "":
+        return failure_response("Image is required!")
+    spot = Spot.query.filter_by(id=spot_id).first()
+    if spot is None:
+        return failure_response("Spot not found!")
+    base64image = base64.b64encode(image.read()).decode("utf-8")
+    image = Image(spot_id=spot_id, binary=base64image)
+    spot.images_id.append(image)
+    db.session.add(image)
+    return success_response({})
+
+
+@app.route("/api/spot/<int:spot_id>/image/")
+def get_spot_image(spot_id):
+    spot = Spot.query.filter_by(id=spot_id).first()
+    if spot is None:
+        return failure_response("Spot not found!")
+    images = [image.binary() for image in spot.images_id]
+    if not images:
+        return failure_response("Images not found!")
+    return jsonify(images)
+
+
+@app.route("/api/spot/<int:spot_id>/action/", methods=["POST"])
+def create_action(spot_id):
+    body = json.loads(request.data)
+    title = body.get("title")
+    description = body.get("description")
+    if title or description is None:
+        return failure_response("Name and descrpition are required!")
+    spot = Spot.query.filter_by(id=spot_id).first()
+    if spot is None:
+        return failure_response("Spot not found!")
+    action = Action(name=title, spot_id=spot_id)
+    db.session.add(action)
+    db.session.commit()
+    return success_response(action.serialize(), 201)
+
+# --------- Users Routes ------------
+
+
 @app.route("/api/users/")
 def get_all_users():
     """
@@ -73,12 +182,12 @@ def get_all_users():
     return success_response({"users": users})
 
 
-@app.route("/api/users/", methods = ["POST"])
+@app.route("/api/users/", methods=["POST"])
 def add_user():
     """
     Endpoint for adding users
     """
-    
+
     body = json.loads(request.data)
     username = body.get("username")
     password = body.get("password")
@@ -88,32 +197,34 @@ def add_user():
 
     hashed_password = hash_password(password)
 
-    user = User.query.filter_by(username = username).first()
+    user = User.query.filter_by(username=username).first()
 
     if user is not None:
         return failure_response("user already exist", 400)
 
-    user = User(username = username,
-                password = hashed_password
+    user = User(username=username,
+                password=hashed_password
                 )
-    
+
     db.session.add(user)
     db.session.commit()
 
     return success_response({"user_id": user.id}, 201)
+
 
 @app.route("/api/users/<int:user_id>/")
 def get_user_by_id(user_id):
     """
     Endpoint for getting user by id
     """
-    user = User.query.filter_by(id = user_id).first()
+    user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("user not found")
-    
+
     return success_response(user.serialize())
 
-@app.route("/api/users/<int:user_id>/", methods = ["DELETE"])
+
+@app.route("/api/users/<int:user_id>/", methods=["DELETE"])
 def delete_user_by_id(user_id):
     """
     Endpoint for deleting an user by its id
@@ -129,7 +240,7 @@ def delete_user_by_id(user_id):
     return success_response({})
 
 
-@app.route("/api/users/verify/", methods = ["POST"])
+@app.route("/api/users/verify/", methods=["POST"])
 def verify_user():
     """
     Endpoint for verifying whether password is correct
@@ -141,22 +252,25 @@ def verify_user():
     if username is None or password is None:
         return failure_response("missing parameter", 400)
 
-    user = User.query.filter_by(username = username).first()
+    user = User.query.filter_by(username=username).first()
 
     if user is None:
         return failure_response("user not found", 404)
-    
+
     hashed_password = hash_password(password)
-    
-    #check with frontend for return message format
-    
+
+    # check with frontend for return message format
 
     if user.password == hashed_password:
         res = {
-            "verify":True,
+            "verify": True,
             "user_id": user.serialize().get("id")
-            }
+        }
         return success_response(res)
     else:
-        res = {"verify":False}
+        res = {"verify": False}
         return success_response(res, 403)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
