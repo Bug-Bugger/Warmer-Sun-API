@@ -4,7 +4,7 @@ services:
   demo:
     image: hoopoed/big_red_hack:latest
     volumes:
-      - /home/sd924/Warmer-Sun.db:/usr/app/instance/Warmer-Sun.db
+      - /home/yourserver/Warmer-Sun.db:/usr/app/instance/Warmer-Sun.db
     ports:
       - "80:8000"
     env_file:
