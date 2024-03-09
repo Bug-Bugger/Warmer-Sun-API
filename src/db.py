@@ -173,6 +173,7 @@ class Action(db.Model):
     images_id = db.relationship("Image", cascade="delete")
     categories = db.relationship(
         "Action_category", secondary=assoc_actions_categories, back_populates="actions")
+    is_verified = db.Column(db.Boolean, nullable=False, default=False)
 
     def __init__(self, **kwargs):
         """
@@ -181,6 +182,7 @@ class Action(db.Model):
         self.title = kwargs.get("title", "")
         self.description = kwargs.get("description", "")
         self.spot_id = kwargs.get("spot_id", "")
+        self.is_verified = kwargs.get("is_verified", False)
 
     def serialize(self):
         """
