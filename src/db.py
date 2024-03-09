@@ -222,6 +222,7 @@ class Action_category(db.Model):
         Initialize an action category object
         """
         self.name = kwargs.get("name", "")
+        self.point = kwargs.get("point", 0)
 
     def serialize(self):
         """
