@@ -48,6 +48,17 @@ def front_page():
 
 
 #### ROUTES ####
+@app.route("/api/park/", methods=["POST"])
+def create_park():
+    body = json.loads(request.data)
+    name = body.get("name")
+    if name is None:
+        return failure_response("Name is required!")
+    park = Park(name=name)
+    db.session.add(park)
+    db.session.commit()
+    return success_response(park.serialize(), 201)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
