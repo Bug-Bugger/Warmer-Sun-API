@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-assoc_posts_users_actions = db.Table(
+assoc_users_actions = db.Table(
     "association_users_actions",
     db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
     db.Column("action_id", db.Integer, db.ForeignKey("action.id"))
@@ -19,7 +19,7 @@ class User(db.Model):
     username = db.Column(db.String, nullable = False)
     password = db.Column(db.String, nullable = False)
     suggested_spots = db.relationship("Spot")
-    actions = db.relationship("Action", secondary = assoc_posts_users_actions, back_populates = "users")
+    actions = db.relationship("Action", secondary = assoc_users_actions, back_populates = "users")
     
 
     def __init__(self, **kwargs):
@@ -139,7 +139,7 @@ class Action(db.Model):
     title = db.Column(db.String, nullable = False)
     description = db.Column(db.String, nullable = False)
     spot_id = db.Column(db.Integer, db.ForeignKey("spot.id"), nullable = False)
-    users_id = db.relationship("User", secondary = assoc_posts_users_actions, back_populates = "actions")
+    users_id = db.relationship("User", secondary = assoc_users_actions, back_populates = "actions")
 
     def serialize(self):
         """
