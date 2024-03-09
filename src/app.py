@@ -132,7 +132,7 @@ def verify_spot(spot_id):
 @app.route("/api/park/<int:park_id>/spot/")
 def get_all_spots_by_park_id(park_id):
     spots = [spot.serialize()
-             for spot in Spot.query.filter_by(park_id=park_id).all()]
+             for spot in Spot.query.filter_by(park_id=park_id and is_verified==True).all()]
     return success_response({"spots": spots})
 
 
