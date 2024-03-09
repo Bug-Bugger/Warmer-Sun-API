@@ -18,7 +18,9 @@ class User(db.Model):
     points = db.Column(db.Integer, nullable = False, default = 0)
     username = db.Column(db.String, nullable = False)
     password = db.Column(db.String, nullable = False)
+    spots = db.relationship("Spot")
     actions = db.relationship("Action", secondary = assoc_posts_users_actions, back_populates = "users")
+    
 
     def __init__(self, **kwargs):
         """
