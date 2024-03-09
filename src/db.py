@@ -109,7 +109,6 @@ class Spot(db.Model):
     longtitute = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     park_id = db.Column(db.Integer, db.ForeignKey("park.id"), nullable=False)
-    park = db.relationship("Park", back_populates="spots")
     actions = db.relationship("Action", cascade="delete")
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     suggester_id = db.Column(
@@ -162,7 +161,7 @@ class Action(db.Model):
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     spot_id = db.Column(db.Integer, db.ForeignKey("spot.id"), nullable=False)
-    users_id = db.relationship(
+    users = db.relationship(
         "User", secondary=assoc_users_actions, back_populates="actions")
     images_id = db.relationship("Image", cascade="delete")
 
@@ -207,9 +206,9 @@ class Shopping_item(db.Model):
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.String, nullable=False)
     image = db.relationship("Image", cascade="delete",
-                            uselist=False, back_populates="shopping_item")
+                            uselist=False)
 
-    def init(self, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize a shop object
         """
@@ -237,22 +236,18 @@ class Image(db.Model):
     """
     __tablename__ = "image"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    image = db.Column(db.String, nullable=False)
+    binary = db.Column(db.String, nullable=False)
     shopping_item_id = db.Column(
         db.Integer, db.ForeignKey("shopping_item.id"))
-    shopping_item = db.relationship("Shopping_item", back_populates="image")
     action_id = db.Column(db.Integer, db.ForeignKey("action.id"))
-    action = db.relationship("Action", back_populates="images_id")
     spot_id = db.Column(db.Integer, db.ForeignKey("spot.id"))
-    spot = db.relationship("Spot", back_populates="images_id")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship("User", back_populates="image")
 
     def init(self, **kwargs):
         """
         Initialize an image object
         """
-        self.image = kwargs.get("image", "")
+        self.binary = kwargs.get("binary", "")
 
     def serialize(self):
         """
@@ -260,5 +255,5 @@ class Image(db.Model):
         """
         return {
             "id": self.id,
-            "image": self.image
+            "binary": self.binary
         }
