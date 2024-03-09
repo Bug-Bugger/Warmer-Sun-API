@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 import base64
 
-from db import db, Park, Spot, Action, Shopping_item, User, Image
+from db import db, Park, Spot, Action, Shopping_item, User, Image, Action_category
 from flask import Flask, request, send_file, jsonify
 from hashlib import pbkdf2_hmac
 from dotenv import load_dotenv
@@ -112,8 +112,8 @@ def create_spot(park_id):
                     latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     else:
         spot = Spot(name=name, longitude=longitude,
-                latitude=latitude, park_id=park_id, is_verified = True)
-    
+                    latitude=latitude, park_id=park_id, is_verified=True)
+
     db.session.add(spot)
     db.session.commit()
     return success_response(spot.serialize(), 201)
@@ -179,22 +179,94 @@ def get_spot_image(spot_id):
         return failure_response("Images not found!")
     return jsonify(images)
 
+# --------- Action Routes ------------
+
 
 @app.route("/api/spot/<int:spot_id>/action/", methods=["POST"])
 def create_action(spot_id):
     body = json.loads(request.data)
     title = body.get("title")
     description = body.get("description")
+    users_id = body.get("users_id")
+    category = body.get("category")
     if title or description is None:
         return failure_response("Name and descrpition are required!")
     spot = Spot.query.filter_by(id=spot_id).first()
+    if users_id is None:
+        return failure_response("User is required!")
+    users = [User.query.filter_by(id=user_id).first() for user_id in users_id]
+    for user in users:
+        if user is None:
+            return failure_response("User not found!")
+
     if spot is None:
         return failure_response("Spot not found!")
-    action = Action(name=title, spot_id=spot_id)
+    if category is None:
+        return failure_response("Category is required!")
+    category = Action_category.query.filter_by(id=category).first()
+    if category is None:
+        return failure_response("Category not found!")
+
+    action = Action(title=title, description=description, spot_id=spot_id)
+    action.categories.append(category)
+    for user in users:
+        action.users.append(user)
+
     db.session.add(action)
     db.session.commit()
     return success_response(action.serialize(), 201)
+# --------- Category Routes ------------
 
+
+@app.route("/api/category/", methods=["POST"])
+def create_category():
+    body = json.loads(request.data)
+    name = body.get("name")
+    point = body.get("point")
+    if name is None or point is None:
+        return failure_response("Name and point are required!")
+    category = Action_category(name=name, point=point)
+    db.session.add(category)
+    db.session.commit()
+    return success_response(category.serialize(), 201)
+
+
+@app.route("/api/category/")
+def get_all_categories():
+    categories = [category.serialize()
+                  for category in Action_category.query.all()]
+    return success_response({"categories": categories})
+
+
+@app.route("/api/category/<int:category_id>/")
+def get_category_by_id(category_id):
+    category = Action_category.query.filter_by(id=category_id).first()
+    if category is None:
+        return failure_response("Category not found!")
+    return success_response(category.serialize())
+
+
+@app.route("/api/category/<int:category_id>/", methods=["DELETE"])
+def delete_category_by_id(category_id):
+    category = Action_category.query.filter_by(id=category_id).first()
+    if category is None:
+        return failure_response("Category not found!")
+    db.session.delete(category)
+    db.session.commit()
+    return success_response({})
+
+
+@app.route("/api/category/<int:category_id>/action/")
+def get_all_actions_by_category_id(category_id):
+    if category_id is None:
+        return failure_response("Category id is required!")
+    category = Action_category.query.filter_by(id=category_id).first()
+    if category is None:
+        return failure_response("Category not found!")
+    actions = [action.serialize() for action in category.actions]
+    return success_response({"actions": actions})
+
+# --------- Shopping Item Routes ------------
 # --------- Users Routes ------------
 
 
