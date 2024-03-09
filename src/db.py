@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-assoc_posts_users_actions = db.Table(
+assoc_users_actions = db.Table(
     "association_users_actions",
     db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
     db.Column("action_id", db.Integer, db.ForeignKey("action.id"))
@@ -19,9 +19,9 @@ class User(db.Model):
     points = db.Column(db.Integer, nullable=False, default=0)
     username = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
-    spots = db.relationship("Spot")
+    suggested_spots = db.relationship("Spot")
     actions = db.relationship(
-        "Action", secondary=assoc_posts_users_actions, back_populates="users")
+        "Action", secondary=assoc_users_actions, back_populates="users")
 
     def __init__(self, **kwargs):
         """
@@ -39,7 +39,8 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "points": self.points,
-            "actions": [action.simple_serialize() for action in self.actions]
+            "actions": [action.simple_serialize() for action in self.actions],
+            "suggested_spots": [spot.simple_serialize() for spot in self.suggested_spots]
         }
 
     def simple_serialize(self):
@@ -101,6 +102,9 @@ class Spot(db.Model):
     park_id = db.Column(db.Integer, db.ForeignKey("park.id"), nullable=False)
     park = db.relationship("Park", back_populates="spots")
     actions = db.relationship("Action", cascade="delete")
+    is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    suggester_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     def serialize(self):
         """
@@ -112,7 +116,8 @@ class Spot(db.Model):
             "longtitute": self.longtitute,
             "latitude": self.latitude,
             "park": self.park.simple_serialize(),
-            "actions": [action.serialize() for action in self.actions]
+            "actions": [action.serialize() for action in self.actions],
+            "suggester_id": self.suggester_id.simple_serialize()
         }
 
     def simple_serialize(self):
@@ -138,8 +143,7 @@ class Action(db.Model):
     description = db.Column(db.String, nullable=False)
     spot_id = db.Column(db.Integer, db.ForeignKey("spot.id"), nullable=False)
     users_id = db.relationship(
-        "User", secondary=assoc_posts_users_actions, back_populates="actions")
-    is_verified = db.Column(db.Boolean, nullable=False, default=False)
+        "User", secondary=assoc_users_actions, back_populates="actions")
 
     def serialize(self):
         """
