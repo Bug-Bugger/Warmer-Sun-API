@@ -66,7 +66,7 @@ class Park(db.Model):
     __tablename__ = "park"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
-    longtitute = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     spots = db.relationship("Spot", cascade="delete")
 
@@ -75,7 +75,7 @@ class Park(db.Model):
         Initialize a park object
         """
         self.name = kwargs.get("name", "")
-        self.longtitute = kwargs.get("longtitute", "")
+        self.longitude = kwargs.get("longitude", "")
         self.latitude = kwargs.get("latitude", "")
 
     def serialize(self):
@@ -85,7 +85,7 @@ class Park(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "longtitute": self.longtitute,
+            "longitude": self.longitude,
             "latitude": self.latitude,
             "spots": [spot.serialize() for spot in self.spots]
         }
@@ -97,7 +97,7 @@ class Park(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "longtitute": self.longtitute,
+            "longitude": self.longitude,
             "latitude": self.latitude
         }
 
@@ -110,7 +110,7 @@ class Spot(db.Model):
     __tablename__ = "spot"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
-    longtitute = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     park_id = db.Column(db.Integer, db.ForeignKey("park.id"), nullable=False)
     actions = db.relationship("Action", cascade="delete")
@@ -124,7 +124,7 @@ class Spot(db.Model):
         Initialize a spot object
         """
         self.name = kwargs.get("name", "")
-        self.longtitute = kwargs.get("longtitute", "")
+        self.longitude = kwargs.get("longitude", "")
         self.latitude = kwargs.get("latitude", "")
         self.park_id = kwargs.get("park_id", "")
         self.suggester_id = kwargs.get("suggester_id", "")
@@ -136,7 +136,7 @@ class Spot(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "longtitute": self.longtitute,
+            "longitude": self.longitude,
             "latitude": self.latitude,
             "park": self.park.simple_serialize(),
             "actions": [action.serialize() for action in self.actions],
@@ -150,7 +150,7 @@ class Spot(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "longtitute": self.longtitute,
+            "longitude": self.longitude,
             "latitude": self.latitude
         }
 
@@ -300,6 +300,7 @@ class Image(db.Model):
             "id": self.id,
             "binary": self.binary
         }
+
     def binary(self):
         """
         Return the binary data of the image

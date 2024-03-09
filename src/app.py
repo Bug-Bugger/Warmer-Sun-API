@@ -53,9 +53,15 @@ def front_page():
 def create_park():
     body = json.loads(request.data)
     name = body.get("name")
+    longitude = body.get("longitude")
+    latitude = body.get("latitude")
     if name is None:
         return failure_response("Name is required!")
-    park = Park(name=name)
+    if longitude is None:
+        return failure_response("Longitute is required!")
+    if latitude is None:
+        return failure_response("Latitude is required!")
+    park = Park(name=name, longitude=longitude, latitude=latitude)
     db.session.add(park)
     db.session.commit()
     return success_response(park.serialize(), 201)
@@ -91,12 +97,12 @@ def delete_park_by_id(park_id):
 def create_spot(park_id):
     body = json.loads(request.data)
     name = body.get("name")
-    longtitute = body.get("longtitute")
+    longitude = body.get("longitude")
     latitude = body.get("latitude")
     suggester_id = body.get("suggester_id")
-    if name is None or longtitute is None or latitude is None:
-        return failure_response("Name, longtitute, and latitude are required!")
-    spot = Spot(name=name, longtitute=longtitute,
+    if name is None or longitude is None or latitude is None:
+        return failure_response("Name, longitude, and latitude are required!")
+    spot = Spot(name=name, longitude=longitude,
                 latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     db.session.add(spot)
     db.session.commit()
