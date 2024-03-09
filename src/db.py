@@ -65,6 +65,14 @@ class Park(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     spots = db.relationship("Spot", cascade="delete")
 
+    def __init__(self, **kwargs):
+        """
+        Initialize a park object
+        """
+        self.name = kwargs.get("name", "")
+        self.longtitute = kwargs.get("longtitute", "")
+        self.latitude = kwargs.get("latitude", "")
+
     def serialize(self):
         """
         Serialize a park object
@@ -106,6 +114,16 @@ class Spot(db.Model):
     suggester_id = db.Column(
         db.Integer, db.ForeignKey("user.id"), nullable=False)
 
+    def __init__(self, **kwargs):
+        """
+        Initialize a spot object
+        """
+        self.name = kwargs.get("name", "")
+        self.longtitute = kwargs.get("longtitute", "")
+        self.latitude = kwargs.get("latitude", "")
+        self.park_id = kwargs.get("park_id", "")
+        self.suggester_id = kwargs.get("suggester_id", "")
+
     def serialize(self):
         """
         Serialize a spot object
@@ -144,6 +162,14 @@ class Action(db.Model):
     spot_id = db.Column(db.Integer, db.ForeignKey("spot.id"), nullable=False)
     users_id = db.relationship(
         "User", secondary=assoc_users_actions, back_populates="actions")
+
+    def __init__(self, **kwargs):
+        """
+        Initialize an action object
+        """
+        self.title = kwargs.get("title", "")
+        self.description = kwargs.get("description", "")
+        self.spot_id = kwargs.get("spot_id", "")
 
     def serialize(self):
         """

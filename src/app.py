@@ -23,18 +23,21 @@ with app.app_context():
     db.create_all()
 
 #### HELPER METHODS ####
+
+
 def hash_password(password):
-    secret_password = pbkdf2_hmac('sha384', password.encode(), salting.encode(), iterations)
+    secret_password = pbkdf2_hmac(
+        'sha384', password.encode(), salting.encode(), iterations)
     return secret_password
 
 
 #### GENERALIZE RETURN ####
-def success_response(body, code = 200):
+def success_response(body, code=200):
     return json.dumps(body), code
 
-def failure_response(message, code = 404):
-    return json.dumps({"error": message}), code
 
+def failure_response(message, code=404):
+    return json.dumps({"error": message}), code
 
 
 @app.route("/")
