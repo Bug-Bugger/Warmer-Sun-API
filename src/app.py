@@ -189,21 +189,16 @@ def create_action(spot_id):
     description = body.get("description")
     users_name = body.get("users_name")
     categories = body.get("categories")
-    if title or description is None:
+    if title is None or description is None:
         return failure_response("Name and descrpition are required!")
     spot = Spot.query.filter_by(id=spot_id).first()
     if users_name is None:
         return failure_response("Users name are required!")
-    users = [User.query.filter_by(username=username).first()
-             for username in users_name]
-    for user in users:
-        if user is None:
-            return failure_response("User not found!")
 
     if spot is None:
         return failure_response("Spot not found!")
-    if category is None:
-        return failure_response("Category is required!")
+    if categories is None:
+        return failure_response("Categories are required!")
 
     action = Action(title=title, description=description, spot_id=spot_id)
     for category in categories:
@@ -211,7 +206,10 @@ def create_action(spot_id):
         if category is None:
             return failure_response("Category not found!")
         action.categories.append(category)
-    for user in users:
+    for user in users_name:
+        user = User.query.filter_by(username=user).first()
+        if user is None:
+            return failure_response("User not found!")
         action.users.append(user)
 
     db.session.add(action)
@@ -230,7 +228,7 @@ def verify_action(action_id):
         total_point += category.point
 
     for user in action.users:
-        user.point += total_point
+        user.points += total_point
 
     db.session.commit()
     return success_response(action.serialize(), 201)
