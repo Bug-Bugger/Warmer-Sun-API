@@ -215,6 +215,23 @@ def create_action(spot_id):
     db.session.add(action)
     db.session.commit()
     return success_response(action.serialize(), 201)
+
+
+@app.route("/api/action/<int:action_id>/", methods=["POST"])
+def verify_action(action_id):
+    action = Action.query.filter_by(id=action_id).first()
+    if action is None:
+        return failure_response("Action not found!")
+    action.is_verified = True
+    total_point = 0
+    for category in action.categories:
+        total_point += category.point
+
+    for user in action.users:
+        user.point += total_point
+
+    db.session.commit()
+    return success_response(action.serialize(), 201)
 # --------- Category Routes ------------
 
 
