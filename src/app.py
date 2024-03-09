@@ -188,7 +188,7 @@ def create_action(spot_id):
     title = body.get("title")
     description = body.get("description")
     users_name = body.get("users_name")
-    category = body.get("category")
+    categories = body.get("categories")
     if title or description is None:
         return failure_response("Name and descrpition are required!")
     spot = Spot.query.filter_by(id=spot_id).first()
@@ -204,12 +204,13 @@ def create_action(spot_id):
         return failure_response("Spot not found!")
     if category is None:
         return failure_response("Category is required!")
-    category = Action_category.query.filter_by(id=category).first()
-    if category is None:
-        return failure_response("Category not found!")
 
     action = Action(title=title, description=description, spot_id=spot_id)
-    action.categories.append(category)
+    for category in categories:
+        category = Action_category.query.filter_by(name=category).first()
+        if category is None:
+            return failure_response("Category not found!")
+        action.categories.append(category)
     for user in users:
         action.users.append(user)
 
@@ -233,6 +234,30 @@ def verify_action(action_id):
 
     db.session.commit()
     return success_response(action.serialize(), 201)
+
+
+@app.route("/api/action/")
+def get_all_actions():
+    actions = [action.serialize() for action in Action.query.all()]
+    return success_response({"actions": actions})
+
+
+@app.route("/api/spot/<int:spot_id>/action/")
+def get_all_actions_by_spot_id(spot_id):
+    actions = [action.serialize()
+               for action in Action.query.filter_by(spot_id=spot_id).all()]
+    return success_response({"actions": actions})
+
+
+@app.route("/api/action/<int:action_id>/", methods=["DELETE"])
+def delete_action_by_id(action_id):
+    action = Action.query.filter_by(id=action_id).first()
+    if action is None:
+        return failure_response("Action not found!")
+    db.session.delete(action)
+    db.session.commit()
+    return success_response({})
+
 # --------- Category Routes ------------
 
 
@@ -243,6 +268,8 @@ def create_category():
     point = body.get("point")
     if name is None or point is None:
         return failure_response("Name and point are required!")
+    if Action_category.query.filter_by(name=name).first() is not None:
+        return failure_response("Category already exists!")
     category = Action_category(name=name, point=point)
     db.session.add(category)
     db.session.commit()
@@ -311,6 +338,7 @@ def get_all_shopping_items():
     shopping_items = [shopping_item.serialize()
                       for shopping_item in Shopping_item.query.all()]
     return success_response({"shopping_items": shopping_items})
+
 # --------- Users Routes ------------
 
 
