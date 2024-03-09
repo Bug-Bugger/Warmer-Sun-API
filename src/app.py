@@ -187,14 +187,15 @@ def create_action(spot_id):
     body = json.loads(request.data)
     title = body.get("title")
     description = body.get("description")
-    users_id = body.get("users_id")
+    users_name = body.get("users_name")
     category = body.get("category")
     if title or description is None:
         return failure_response("Name and descrpition are required!")
     spot = Spot.query.filter_by(id=spot_id).first()
-    if users_id is None:
-        return failure_response("User is required!")
-    users = [User.query.filter_by(id=user_id).first() for user_id in users_id]
+    if users_name is None:
+        return failure_response("Users name are required!")
+    users = [User.query.filter_by(username=username).first()
+             for username in users_name]
     for user in users:
         if user is None:
             return failure_response("User not found!")
