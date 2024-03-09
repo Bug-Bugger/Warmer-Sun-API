@@ -138,7 +138,7 @@ class Spot(db.Model):
             "name": self.name,
             "longitude": self.longitude,
             "latitude": self.latitude,
-            "park": self.park.simple_serialize(),
+            "park_id": self.park_id,
             "actions": [action.simple_serialize() for action in self.actions],
             "suggester_id": self.suggester_id.simple_serialize(),
             "verified": self.is_verified
