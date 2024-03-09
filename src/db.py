@@ -142,7 +142,7 @@ class Spot(db.Model):
             "park_id": self.park_id,
             "actions": [action.simple_serialize() for action in self.actions],
             "suggester_id": self.suggester_id,
-            "verified": self.is_verified
+            "is_verified": self.is_verified
         }
 
     def simple_serialize(self):

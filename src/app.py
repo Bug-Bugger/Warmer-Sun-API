@@ -112,7 +112,7 @@ def create_spot(park_id):
                     latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     else:
         spot = Spot(name=name, longitude=longitude,
-                latitude=latitude, park_id=park_id, verified = True)
+                latitude=latitude, park_id=park_id, is_verified = True)
     
     db.session.add(spot)
     db.session.commit()
@@ -132,7 +132,7 @@ def verify_spot(spot_id):
 @app.route("/api/park/<int:park_id>/spot/")
 def get_all_spots_by_park_id(park_id):
     spots = [spot.serialize()
-             for spot in Spot.query.filter_by(park_id=park_id and is_verified==True).all()]
+             for spot in Spot.query.filter_by(park_id=park_id, is_verified=True).all()]
     return success_response({"spots": spots})
 
 
