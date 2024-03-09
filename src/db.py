@@ -265,7 +265,6 @@ class Shopping_item(db.Model):
         self.name = kwargs.get("name", "")
         self.price = kwargs.get("price", "")
         self.description = kwargs.get("description", "")
-        self.image = kwargs.get("image", "")
 
     def serialize(self):
         """
