@@ -102,8 +102,13 @@ def create_spot(park_id):
     suggester_id = body.get("suggester_id")
     if name is None or longitude is None or latitude is None:
         return failure_response("Name, longitude, and latitude are required!")
-    spot = Spot(name=name, longitude=longitude,
+    if suggester_id is not None:
+        spot = Spot(name=name, longitude=longitude,
                 latitude=latitude, park_id=park_id, suggester_id=suggester_id)
+    else:
+        spot = Spot(name=name, longitude=longitude,
+                latitude=latitude, park_id=park_id)
+    
     db.session.add(spot)
     db.session.commit()
     return success_response(spot.serialize(), 201)

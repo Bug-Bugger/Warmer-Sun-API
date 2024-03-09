@@ -139,7 +139,7 @@ class Spot(db.Model):
             "longitude": self.longitude,
             "latitude": self.latitude,
             "park": self.park.simple_serialize(),
-            "actions": [action.serialize() for action in self.actions],
+            "actions": [action.simple_serialize() for action in self.actions],
             "suggester_id": self.suggester_id.simple_serialize()
         }
 
@@ -197,7 +197,7 @@ class Action(db.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "description": self.description
+            "users": [user.simple_serialize() for user in self.users]
         }
 
 class Action_category(db.Model):
