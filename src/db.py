@@ -257,3 +257,8 @@ class Image(db.Model):
             "id": self.id,
             "binary": self.binary
         }
+    def binary(self):
+        """
+        Return the binary data of the image
+        """
+        return self.binary
