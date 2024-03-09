@@ -100,9 +100,14 @@ def create_spot(park_id):
     longitude = body.get("longitude")
     latitude = body.get("latitude")
     suggester_id = body.get("suggester_id")
+
     if name is None or longitude is None or latitude is None:
         return failure_response("Name, longitude, and latitude are required!")
+    
     if suggester_id is not None:
+        suggester = User.query.filter_by(id=suggester_id).first()
+        if suggester is None:
+            return failure_response("Suggester not found!")
         spot = Spot(name=name, longitude=longitude,
                 latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     else:
