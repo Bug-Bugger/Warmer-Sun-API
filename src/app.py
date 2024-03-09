@@ -285,6 +285,32 @@ def get_all_actions_by_category_id(category_id):
     return success_response({"actions": actions})
 
 # --------- Shopping Item Routes ------------
+
+
+@app.route("/api/shopping_item/", methods=["POST"])
+def create_shopping_item():
+    body = json.loads(request.data)
+    name = body.get("name")
+    price = body.get("price")
+    description = body.get("description")
+    image = request.files["image"]
+    image = Image(binary=base64.b64encode(image.read()).decode("utf-8"))
+
+    if name is None or price is None or description is None:
+        return failure_response("Name and price are required!")
+    shopping_item = Shopping_item(
+        name=name, price=price, description=description)
+    shopping_item.image = image
+    db.session.add(shopping_item)
+    db.session.commit()
+    return success_response(shopping_item.serialize(), 201)
+
+
+@app.route("/api/shopping_item/")
+def get_all_shopping_items():
+    shopping_items = [shopping_item.serialize()
+                      for shopping_item in Shopping_item.query.all()]
+    return success_response({"shopping_items": shopping_items})
 # --------- Users Routes ------------
 
 
