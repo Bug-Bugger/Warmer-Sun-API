@@ -18,7 +18,7 @@ class User(db.Model):
     points = db.Column(db.Integer, nullable = False, default = 0)
     username = db.Column(db.String, nullable = False)
     password = db.Column(db.String, nullable = False)
-    spots = db.relationship("Spot")
+    suggested_spots = db.relationship("Spot")
     actions = db.relationship("Action", secondary = assoc_posts_users_actions, back_populates = "users")
     
 
@@ -38,7 +38,8 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "points": self.points,
-            "actions": [action.simple_serialize() for action in self.actions]
+            "actions": [action.simple_serialize() for action in self.actions],
+            "suggested_spots": [spot.simple_serialize() for spot in self.suggested_spots]
         }
     
     
@@ -99,6 +100,8 @@ class Spot(db.Model):
     park_id = db.Column(db.Integer, db.ForeignKey("park.id"), nullable = False)
     park = db.relationship("Park", back_populates = "spots")
     actions = db.relationship("Action", cascade = "delete")
+    is_verified = db.Column(db.Boolean, nullable = False, default = False)
+    suggester_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
 
     def serialize(self):
         """
@@ -110,7 +113,8 @@ class Spot(db.Model):
             "longtitute": self.longtitute,
             "latitude": self.latitude,
             "park": self.park.simple_serialize(),
-            "actions": [action.serialize() for action in self.actions]
+            "actions": [action.serialize() for action in self.actions],
+            "suggester_id": self.suggester_id.simple_serialize()
         }
     
     def simple_serialize(self):
