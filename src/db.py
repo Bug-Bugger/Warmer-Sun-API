@@ -192,7 +192,7 @@ class Action(db.Model):
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "spot": self.spot.simple_serialize(),
+            "spot_id": self.spot_id,
             "users": [user.simple_serialize() for user in self.users]
         }
 
