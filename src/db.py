@@ -117,7 +117,7 @@ class Spot(db.Model):
     actions = db.relationship("Action", cascade="delete")
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     suggester_id = db.Column(
-        db.Integer, db.ForeignKey("user.id"), default=0)
+        db.Integer, db.ForeignKey("user.id"))
     images_id = db.relationship("Image", cascade="delete")
 
     def __init__(self, **kwargs):
@@ -128,7 +128,8 @@ class Spot(db.Model):
         self.longitude = kwargs.get("longitude", "")
         self.latitude = kwargs.get("latitude", "")
         self.park_id = kwargs.get("park_id", "")
-        self.suggester_id = kwargs.get("suggester_id", "")
+        self.suggester_id = kwargs.get("suggester_id", 0)
+        self.is_verified = kwargs.get("is_verified", False)
 
     def serialize(self):
         """
