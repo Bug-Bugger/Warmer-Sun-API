@@ -118,6 +118,15 @@ def create_spot(park_id):
     db.session.commit()
     return success_response(spot.serialize(), 201)
 
+@app.route("/api/spot/<int:spot_id>/verify/")
+def verify_spot(spot_id):
+    spot = Spot.query.filter_by(id=spot_id).first()
+    if spot is None:
+        return failure_response("Spot not found!")
+    spot.is_verified = True
+    db.session.commit()
+    return success_response(spot.serialize(), 201)
+
 @app.route("/api/park/<int:park_id>/spot/")
 def get_all_spots_by_park_id(park_id):
     spots = [spot.serialize()
