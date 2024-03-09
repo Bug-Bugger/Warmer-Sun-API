@@ -88,7 +88,7 @@ class Park(db.Model):
             "name": self.name,
             "longitude": self.longitude,
             "latitude": self.latitude,
-            "spots": [spot.serialize() for spot in self.spots]
+            "spots": [spot.simple_serialize() for spot in self.spots]
         }
 
     def simple_serialize(self):
