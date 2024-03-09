@@ -103,20 +103,21 @@ def create_spot(park_id):
 
     if name is None or longitude is None or latitude is None:
         return failure_response("Name, longitude, and latitude are required!")
-    
+
     if suggester_id is not None:
         suggester = User.query.filter_by(id=suggester_id).first()
         if suggester is None:
             return failure_response("Suggester not found!")
         spot = Spot(name=name, longitude=longitude,
-                latitude=latitude, park_id=park_id, suggester_id=suggester_id)
+                    latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     else:
         spot = Spot(name=name, longitude=longitude,
-                latitude=latitude, park_id=park_id)
-    
+                    latitude=latitude, park_id=park_id)
+
     db.session.add(spot)
     db.session.commit()
     return success_response(spot.serialize(), 201)
+
 
 @app.route("/api/park/<int:park_id>/spot/")
 def get_all_spots_by_park_id(park_id):
