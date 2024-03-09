@@ -8,6 +8,10 @@ assoc_users_actions = db.Table(
     db.Column("action_id", db.Integer, db.ForeignKey("action.id"))
 )
 
+assoc_actions_categories = db.Table(
+    "association_actions_categories",
+    db.Column("action_id", db.Integer, db.ForeignKey("action.id")),
+    db.Column("category_id", db.Integer, db.ForeignKey("category.id")))
 
 class User(db.Model):
     """
@@ -164,6 +168,7 @@ class Action(db.Model):
     users = db.relationship(
         "User", secondary=assoc_users_actions, back_populates="actions")
     images_id = db.relationship("Image", cascade="delete")
+    categories = db.relationship("Action_category", secondary=assoc_actions_categories, back_populates="actions")
 
     def __init__(self, **kwargs):
         """
@@ -195,6 +200,41 @@ class Action(db.Model):
             "description": self.description
         }
 
+class Action_category(db.Model):
+    """
+    Action Category Model
+    """
+
+    __tablename__ = "category"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    actions = db.relationship(
+        "Action", secondary=assoc_actions_categories, back_populates="categories")
+
+    def __init__(self, **kwargs):
+        """
+        Initialize an action category object
+        """
+        self.name = kwargs.get("name", "")
+
+    def serialize(self):
+        """
+        Serialize an action category object
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "actions": [action.simple_serialize() for action in self.actions]
+        }
+
+    def simple_serialize(self):
+        """
+        Serialize an action category object without actions field
+        """
+        return {
+            "id": self.id,
+            "name": self.name
+        }
 
 class Shopping_item(db.Model):
     """
@@ -228,6 +268,8 @@ class Shopping_item(db.Model):
             "description": self.description,
             "image": self.image
         }
+
+
 
 
 class Image(db.Model):
