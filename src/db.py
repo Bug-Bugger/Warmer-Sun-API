@@ -13,6 +13,7 @@ assoc_actions_categories = db.Table(
     db.Column("action_id", db.Integer, db.ForeignKey("action.id")),
     db.Column("category_id", db.Integer, db.ForeignKey("category.id")))
 
+
 class User(db.Model):
     """
     User Model
@@ -140,7 +141,7 @@ class Spot(db.Model):
             "latitude": self.latitude,
             "park_id": self.park_id,
             "actions": [action.simple_serialize() for action in self.actions],
-            "suggester_id": self.suggester_id.simple_serialize(),
+            "suggester_id": self.suggester_id,
             "verified": self.is_verified
         }
 
@@ -169,7 +170,8 @@ class Action(db.Model):
     users = db.relationship(
         "User", secondary=assoc_users_actions, back_populates="actions")
     images_id = db.relationship("Image", cascade="delete")
-    categories = db.relationship("Action_category", secondary=assoc_actions_categories, back_populates="actions")
+    categories = db.relationship(
+        "Action_category", secondary=assoc_actions_categories, back_populates="actions")
 
     def __init__(self, **kwargs):
         """
@@ -200,6 +202,7 @@ class Action(db.Model):
             "title": self.title,
             "users": [user.simple_serialize() for user in self.users]
         }
+
 
 class Action_category(db.Model):
     """
@@ -238,6 +241,7 @@ class Action_category(db.Model):
             "name": self.name
         }
 
+
 class Shopping_item(db.Model):
     """
     Shop Model
@@ -270,8 +274,6 @@ class Shopping_item(db.Model):
             "description": self.description,
             "image": self.image
         }
-
-
 
 
 class Image(db.Model):
