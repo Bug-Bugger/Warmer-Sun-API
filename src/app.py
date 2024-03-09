@@ -112,7 +112,7 @@ def create_spot(park_id):
                 latitude=latitude, park_id=park_id, suggester_id=suggester_id)
     else:
         spot = Spot(name=name, longitude=longitude,
-                latitude=latitude, park_id=park_id)
+                latitude=latitude, park_id=park_id, verified = True)
     
     db.session.add(spot)
     db.session.commit()
