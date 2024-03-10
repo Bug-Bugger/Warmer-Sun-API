@@ -7,8 +7,10 @@ from db import db, Park, Spot, Action, Shopping_item, User, Image, Action_catego
 from flask import Flask, request, send_file, jsonify
 from hashlib import pbkdf2_hmac
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 db_filename = "Warmer-Sun.db"
 
 load_dotenv()
