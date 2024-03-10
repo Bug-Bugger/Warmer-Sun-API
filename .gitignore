@@ -5,6 +5,7 @@ venv
 pollution_heatmap.html
 pollution_data.csv
 csv_generate.py
+.DS_Store
 
 # Created by https://www.toptal.com/developers/gitignore/api/flask,python,windows,visualstudio,visualstudiocode,pulumi+stacks
 # Edit at https://www.toptal.com/developers/gitignore?templates=flask,python,windows,visualstudio,visualstudiocode,pulumi+stacks
