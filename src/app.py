@@ -10,7 +10,11 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*",
+                                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                                 "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]}})
+
+
 db_filename = "Warmer-Sun.db"
 
 load_dotenv()
@@ -394,7 +398,7 @@ def get_all_users():
     return success_response({"users": users})
 
 
-@app.route("/api/users/", methods=["POST"])
+@app.route("/api/users", methods=["POST"])
 def add_user():
     """
     Endpoint for adding users
