@@ -204,7 +204,9 @@ class Action(db.Model):
             "spot_id": self.spot_id,
             "users": [user.simple_serialize() for user in self.users],
             "categories": [category.simple_serialize() for category in self.categories],
-            "time": self.time
+            "time": self.time,
+            "is_verified": self.is_verified,
+            "minute_duration": self.minute_duration
         }
 
     def simple_serialize(self):
