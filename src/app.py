@@ -266,8 +266,9 @@ def get_all_actions_by_spot_id(spot_id):
 
 @app.route("/api/users/<int:user_id>/action")
 def get_all_actions_by_user_id(user_id):
+    user = User.query.filter_by(id=user_id).first()
     actions = [action.simple_serialize()
-               for action in Action.query.filter_by(user_id in user_id).all()]
+               for action in Action.query.filter_by(user=user).all()]
     return success_response({"actions": actions})
 
 
@@ -514,6 +515,7 @@ def upload_file():
         heatmap_file = create_heatmap(data)
         return send_file(heatmap_file, mimetype='text/html')
     return 'No file received', 400
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
