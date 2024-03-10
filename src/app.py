@@ -8,6 +8,7 @@ from flask import Flask, request, send_file, jsonify
 from hashlib import pbkdf2_hmac
 from dotenv import load_dotenv
 from flask_cors import CORS
+from data_visualization import process_csv, create_heatmap
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*",
@@ -497,6 +498,15 @@ def verify_user():
         res = {"verify": False}
         return success_response(res, 403)
 
+
+@app.route('/api/analyze', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    if file:
+        data = process_csv(file)
+        heatmap_file = create_heatmap(data)
+        return send_file(heatmap_file, mimetype='text/html')
+    return 'No file received', 400
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

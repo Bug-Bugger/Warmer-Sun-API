@@ -13,3 +13,5 @@ urllib3==1.26.12
 Werkzeug==2.2.2
 python-dotenv==1.0.0
 Flask-Cors==1.10.3
+folium==0.16.0
+pandas==2.2.1
