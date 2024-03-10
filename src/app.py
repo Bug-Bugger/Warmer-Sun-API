@@ -258,7 +258,7 @@ def get_all_actions():
     return success_response({"actions": actions})
 
 
-@app.route("/api/spot/<int:spot_id>/action")
+@app.route("/api/spot/<int:spot_id>/action/")
 def get_all_actions_by_spot_id(spot_id):
     actions = [action.simple_serialize()
                for action in Action.query.filter_by(spot_id=spot_id).all()]
