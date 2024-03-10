@@ -269,7 +269,7 @@ def get_all_actions_by_spot_id(spot_id):
 def get_all_actions_by_user_id(user_id):
     user = User.query.filter_by(id=user_id).first()
     actions = [action.simple_serialize()
-               for action in Action.query.filter_by(user=user).all()]
+               for action in Action.query.filter_by(users=user).all()]
     return success_response({"actions": actions})
 
 
