@@ -217,7 +217,8 @@ class Action(db.Model):
             "id": self.id,
             "title": self.title,
             "users": [user.simple_serialize() for user in self.users],
-            "time": self.time
+            "time": self.time,
+            "is_verified": self.is_verified
         }
 
 
