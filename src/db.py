@@ -25,6 +25,8 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     suggested_spots = db.relationship("Spot")
+    volunteered_minutes = db.Column(
+        db.Integer, nullable=False, default=0)
     actions = db.relationship(
         "Action", secondary=assoc_users_actions, back_populates="users")
     image = db.relationship("Image", cascade="delete", uselist=False)
@@ -36,6 +38,7 @@ class User(db.Model):
 
         self.username = kwargs.get("username", "")
         self.password = kwargs.get("password", "")
+        self.volunteered_minutes = 0
 
     def serialize(self):
         """
@@ -175,6 +178,7 @@ class Action(db.Model):
         "Action_category", secondary=assoc_actions_categories, back_populates="actions")
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     time = db.Column(db.DateTime, nullable=False)
+    minute_duration = db.Column(db.Integer, nullable=False, default=0)
 
     def __init__(self, **kwargs):
         """
@@ -185,6 +189,7 @@ class Action(db.Model):
         self.spot_id = kwargs.get("spot_id", "")
         self.is_verified = kwargs.get("is_verified", False)
         self.time = kwargs.get("time")
+        self.minute_duration = kwargs.get("minute_duration", 0)
 
     def serialize(self):
         """

@@ -189,6 +189,7 @@ def create_action(spot_id):
     description = body.get("description")
     users_name = body.get("users_name")
     categories = body.get("categories")
+    minute_duration = body.get("minute_duration")
     if title is None or description is None:
         return failure_response("Name and descrpition are required!")
     spot = Spot.query.filter_by(id=spot_id).first()
@@ -203,7 +204,7 @@ def create_action(spot_id):
     time = datetime.now()
 
     action = Action(title=title, description=description,
-                    spot_id=spot_id, time=time)
+                    spot_id=spot_id, time=time, minute_duration=minute_duration)
     for category in categories:
         category = Action_category.query.filter_by(name=category).first()
         if category is None:
@@ -232,6 +233,7 @@ def verify_action(action_id):
 
     for user in action.users:
         user.points += total_point
+        user.volunteered_minutes += action.minute_duration
 
     db.session.commit()
     return success_response(action.serialize(), 201)
@@ -426,6 +428,18 @@ def get_user_by_id(user_id):
     return success_response(user.serialize())
 
 
+@app.route("/api/users/<string:username>/")
+def get_user_by_username(username):
+    """
+    Endpoint for getting user by username
+    """
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        return failure_response("user not found")
+
+    return success_response(user.serialize())
+
+
 @app.route("/api/users/<int:user_id>/", methods=["DELETE"])
 def delete_user_by_id(user_id):
     """
@@ -460,8 +474,6 @@ def verify_user():
         return failure_response("user not found", 404)
 
     hashed_password = hash_password(password)
-
-    # check with frontend for return message format
 
     if user.password == hashed_password:
         res = {
