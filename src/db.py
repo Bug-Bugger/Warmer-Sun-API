@@ -248,7 +248,8 @@ class Action_category(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "actions": [action.simple_serialize() for action in self.actions]
+            "actions": [action.simple_serialize() for action in self.actions],
+            "point": self.point
         }
 
     def simple_serialize(self):
