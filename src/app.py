@@ -254,14 +254,20 @@ def verify_action(action_id):
 
 @app.route("/api/action/")
 def get_all_actions():
-    actions = [action.serialize() for action in Action.query.all()]
+    actions = [action.simple_serialize() for action in Action.query.all()]
     return success_response({"actions": actions})
 
 
 @app.route("/api/spot/<int:spot_id>/action/")
 def get_all_actions_by_spot_id(spot_id):
-    actions = [action.serialize()
+    actions = [action.simple_serialize()
                for action in Action.query.filter_by(spot_id=spot_id).all()]
+    return success_response({"actions": actions})
+
+@app.route("/api/users/<int:user_id>/action/")
+def get_all_actions_by_user_id(user_id):
+    actions = [action.simple_serialize()
+               for action in Action.query.filter_by(user_id in user_id).all()]
     return success_response({"actions": actions})
 
 
