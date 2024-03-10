@@ -174,6 +174,7 @@ class Action(db.Model):
     categories = db.relationship(
         "Action_category", secondary=assoc_actions_categories, back_populates="actions")
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    time = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, **kwargs):
         """
@@ -183,6 +184,7 @@ class Action(db.Model):
         self.description = kwargs.get("description", "")
         self.spot_id = kwargs.get("spot_id", "")
         self.is_verified = kwargs.get("is_verified", False)
+        self.time = kwargs.get("time")
 
     def serialize(self):
         """
@@ -193,7 +195,9 @@ class Action(db.Model):
             "title": self.title,
             "description": self.description,
             "spot_id": self.spot_id,
-            "users": [user.simple_serialize() for user in self.users]
+            "users": [user.simple_serialize() for user in self.users],
+            "categories": [category.simple_serialize() for category in self.categories],
+            "time": self.time
         }
 
     def simple_serialize(self):
@@ -203,7 +207,8 @@ class Action(db.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "users": [user.simple_serialize() for user in self.users]
+            "users": [user.simple_serialize() for user in self.users],
+            "time": self.time
         }
 
 
