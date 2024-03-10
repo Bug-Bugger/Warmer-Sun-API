@@ -34,7 +34,7 @@ def hash_password(password):
 
 #### GENERALIZE RETURN ####
 def success_response(body, code=200):
-    return json.dumps(body), code
+    return json.dumps(body, default=str), code
 
 
 def failure_response(message, code=404):
@@ -200,7 +200,10 @@ def create_action(spot_id):
     if categories is None:
         return failure_response("Categories are required!")
 
-    action = Action(title=title, description=description, spot_id=spot_id)
+    time = datetime.now()
+
+    action = Action(title=title, description=description,
+                    spot_id=spot_id, time=time)
     for category in categories:
         category = Action_category.query.filter_by(name=category).first()
         if category is None:
@@ -256,6 +259,37 @@ def delete_action_by_id(action_id):
     db.session.commit()
     return success_response({})
 
+
+@app.route("/api/action/<int:action_id>/image/", methods=["POST"])
+def add_action_image(action_id):
+    images = request.files["images"]  # TODO load from list of images
+    if images is None:
+        return failure_response("Images are required!")
+
+    action = Action.query.filter_by(id=action_id).first()
+    if action is None:
+        return failure_response("Action not found!")
+    for image in images:
+        if image.filename == "":
+            return failure_response("Image is required!")
+        base64image = base64.b64encode(image.read()).decode("utf-8")
+        image = Image(action_id=action_id, binary=base64image)
+        action.images_id.append(image)
+        db.session.add(image)
+    db.session.commit()
+    return success_response({})
+
+
+@app.route("/api/action/<int:action_id>/image/")
+def get_action_image(action_id):
+    action = Action.query.filter_by(id=action_id).first()
+    images = []
+    if action is None:
+        return failure_response("Action not found!")
+    for image in action.images_id:
+        images.append(image.binary)
+    return jsonify(images)
+
 # --------- Category Routes ------------
 
 
@@ -265,9 +299,9 @@ def create_category():
     name = body.get("name")
     point = body.get("point")
     if name is None or point is None:
-        return failure_response("Name and point are required!")
+        return failure_response("Name and point are required!", 400)
     if Action_category.query.filter_by(name=name).first() is not None:
-        return failure_response("Category already exists!")
+        return failure_response("Category already exists!", 400)
     category = Action_category(name=name, point=point)
     db.session.add(category)
     db.session.commit()
