@@ -144,6 +144,7 @@ class Spot(db.Model):
             "longitude": self.longitude,
             "latitude": self.latitude,
             "park_id": self.park_id,
+            "park": Park.query.filter_by(id=self.park_id).first().name,
             "actions": [action.simple_serialize() for action in self.actions],
             "suggester_id": self.suggester_id,
             "is_verified": self.is_verified
@@ -156,6 +157,7 @@ class Spot(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "park": Park.query.filter_by(id=self.park_id).first().name,
             "longitude": self.longitude,
             "latitude": self.latitude
         }
