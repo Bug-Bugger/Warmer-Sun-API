@@ -136,6 +136,12 @@ def get_all_spots_by_park_id(park_id):
     return success_response({"spots": spots})
 
 
+@app.route("/api/spot/")
+def get_all_spots():
+    spots = [spot.serialize() for spot in Spot.query.all()]
+    return success_response({"spots": spots})
+
+
 @app.route("/api/spot/<int:spot_id>/")
 def get_spot_by_id(spot_id):
     spot = Spot.query.filter_by(id=spot_id).first()
@@ -226,13 +232,13 @@ def verify_action(action_id):
     action = Action.query.filter_by(id=action_id).first()
     if action is None:
         return failure_response("Action not found!")
+    if action.is_verified:
+        return failure_response("Action already verified!")
     action.is_verified = True
-    total_point = 0
-    for category in action.categories:
-        total_point += category.point
+    max_base_points = max(category.points for category in action.categories)
 
     for user in action.users:
-        user.points += total_point
+        user.points += max_base_points * action.minute_duration
         user.volunteered_minutes += action.minute_duration
 
     db.session.commit()
