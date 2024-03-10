@@ -504,6 +504,7 @@ def upload_file():
     file = request.files['file']
     if file:
         data = process_csv(file)
+        data['pollution'] -= data['pollution'].min()
         heatmap_file = create_heatmap(data)
         return send_file(heatmap_file, mimetype='text/html')
     return 'No file received', 400

@@ -3,3 +3,6 @@ Warmer-Sun.db
 __pycache__
 venv
 .git
+pollution_heatmap.html
+pollution_data.csv
+csv_generate.py
